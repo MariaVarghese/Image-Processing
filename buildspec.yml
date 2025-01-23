@@ -35,16 +35,12 @@ phases:
       - npm run build
       - cd ..
       - cd ..
-artifacts:
-  files:
-    - Backend/s3Trigger/lambda_package.zip
-  secondary-artifacts:
-    frontend:
-      files:
-        - '**/**/*'
-      base-directory: Frontend/image-processing/build
-      discard-paths: yes
 
 post_build:
   commands:
     - aws lambda update-function-code --function-name s3Trigger --zip-file fileb://Backend/s3Trigger/lambda_package.zip
+    - aws s3 cp Frontend/image-processing/build s3://react-build-image-processing/ --recursive
+artifacts:
+  files:
+    - Backend/s3Trigger/lambda_package.zip
+    - Frontend/image-processing/build

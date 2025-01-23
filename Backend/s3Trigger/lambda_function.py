@@ -1,7 +1,5 @@
 import json
 import boto3
-from PIL import Image
-from PIL.ExifTags import TAGS
 
 s3 = boto3.client('s3')
 
