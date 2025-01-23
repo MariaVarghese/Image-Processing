@@ -1,12 +1,12 @@
 version: 0.2
 
 phases:
-  runtime-versions:
+  install:
     nodejs: 23.3.0
     python: 3.12
     commands:
       - echo "Installing dependencies for backend and frontend"
-  pre-build: 
+  pre_build: 
     commands:
       - echo "Installing dependencies for backend"
       - cd Backend
