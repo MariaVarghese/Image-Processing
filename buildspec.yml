@@ -27,6 +27,8 @@ phases:
       - cd Backend
       - cd s3Trigger
       - zip -r lambda_package.zip .
+      - ls -l
+      - echo "Zip Successfully Created"
       - cd ..
       - cd ..
       - echo "Building frontend"
@@ -38,11 +40,6 @@ phases:
 
 post_build:
   commands:
-    - # Navigate to the directory containing the zip file
-    - cd Backend/s3Trigger
-
-    - # List the contents to verify the file exists
-    - ls -l lambda_package.zip
     - aws lambda update-function-code --function-name s3Trigger --zip-file fileb://Backend/s3Trigger/lambda_package.zip
     - aws s3 cp Frontend/image-processing/build s3://react-build-image-processing/ --recursive
 artifacts:
