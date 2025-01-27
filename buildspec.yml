@@ -30,7 +30,7 @@ phases:
       - ls -l
       - echo "Zip Successfully Created"
       - aws s3 cp lambda_package.zip s3://lambda-zip-python/lambda_package.zip 
-      - aws lambda update-function-code --function-name s3Trigger --s3-bucket my-deployment-bucket --s3-key lambda_package.zip
+      - aws lambda update-function-code --function-name s3Trigger --s3-bucket lambda-zip-python --s3-key lambda_package.zip
       - echo "Lambda Updated"
       - cd ..
       - cd ..
