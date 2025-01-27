@@ -39,6 +39,6 @@ phases:
       - npm run build
       - echo "Build Complete"
       - ls -l
+      - cd ..
+      - cd ..
       - aws s3 cp Frontend/image-processing/build s3://react-build-image-processing/ --recursive
-      - cd ..
-      - cd ..

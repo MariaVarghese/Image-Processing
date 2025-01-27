@@ -8,3 +8,7 @@
 6. Implement automated builds using AWS CodeBuild.
 7. Develop a React web application that fetches and displays processed images' information.
 8. Deploy the React application to an S3 bucket and secure it with Amazon Cognito for user authentication.
+
+
+#Git Commands
+git config --global http.sslVerify false
