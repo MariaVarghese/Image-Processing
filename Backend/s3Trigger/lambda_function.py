@@ -3,6 +3,7 @@ import cv2
 import numpy as np
 from io import BytesIO
 import piexif
+import imageio
 
 # Initialize the S3 client
 s3_client = boto3.client('s3')
@@ -46,23 +47,23 @@ def lambda_handler(event, context):
         image_with_metadata = piexif.insert(exif_bytes, buffer.tobytes())
         s3_client.put_object(Bucket='processed-images-metadata', Key='processed-' + object_key, Body=image_with_metadata)
         
-        # Store metadata in DynamoDB
+        
         table = dynamodb.Table('image-metadata')
         table.put_item(
             Item={
                 'ImageKey': 'processed-' + object_key,
-                'Artist': "Artist Name",
-                'Copyright': "© 2025 Artist Name",
-                'Description': "Image Description"
+                'Artist': artist,
+                'Copyright': copyright,
+                'Description': description
             }
         )
         
         return {
             'statusCode': 200,
-            'body': 'Image processed, metadata added, and saved to S3. Metadata stored in DynamoDB.'
+            'body': 'Image processed, metadata extracted, and saved to S3. Metadata stored in DynamoDB.'
         }
     except Exception as ex:
         return {
             'statusCode': 500,
-            'body': f'Error : {ex}'
+            'body': f'Exception at {ex}'
         }
