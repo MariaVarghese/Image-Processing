@@ -29,20 +29,16 @@ phases:
       - zip -r lambda_package.zip .
       - ls -l
       - echo "Zip Successfully Created"
+      - aws lambda update-function-code --function-name s3Trigger --zip-file fileb://lambda_package.zip
+      - echo "Lambda Updated"
       - cd ..
       - cd ..
       - echo "Building frontend"
       - cd Frontend
       - cd image-processing
       - npm run build
+      - echo "Build Complete"
+      - ls -l
+      - aws s3 cp Frontend/image-processing/build s3://react-build-image-processing/ --recursive
       - cd ..
       - cd ..
-
-post_build:
-  commands:
-    - aws lambda update-function-code --function-name s3Trigger --zip-file fileb://lambda_package.zip
-    - aws s3 cp Frontend/image-processing/build s3://react-build-image-processing/ --recursive
-artifacts:
-  files:
-    - Backend/s3Trigger/lambda_package.zip
-    - Frontend/image-processing/build
