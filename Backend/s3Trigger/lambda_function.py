@@ -26,7 +26,8 @@ def lambda_handler(event, context):
 
         # Process the image (example: convert to grayscale)
         gray_image = np.dot(image[...,:3], [0.2989, 0.5870, 0.1140])  # Convert to grayscale
-        
+        gray_image = (gray_image * 255).astype(np.uint8)  # Convert to uint8 format
+
         # Extract existing metadata using piexif
         exif_dict = piexif.load(BytesIO(image_bytes).getvalue())
         artist = exif_dict['0th'].get(piexif.ImageIFD.Artist, "Unknown Artist")
@@ -38,14 +39,18 @@ def lambda_handler(event, context):
         print(f"Copyright: {copyright}")
         print(f"Description: {description}")
         
+        print("Processing Image")
         # Save the processed image with existing metadata
         exif_bytes = piexif.dump(exif_dict)
         output_buffer = BytesIO()
         imageio.imwrite(output_buffer, gray_image, format='jpeg')
         image_with_metadata = piexif.insert(exif_bytes, output_buffer.getvalue())
+
+        print("Save image in s3")
         s3_response = s3_client.put_object(Bucket='processed-images-metadata', Key='processed-' + object_key, Body=image_with_metadata)
         print("S3 Response :: "+s3_response)
 
+        print("Save image details in dynamodb")
         # Store metadata in DynamoDB
         table = dynamodb.Table('image-metadata')
         response = table.put_item(
