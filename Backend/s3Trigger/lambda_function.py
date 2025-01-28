@@ -57,22 +57,21 @@ def lambda_handler(event, context):
         table = dynamodb.Table('image-metadata')
         table.put_item(
             Item={
-                'ImageKey': 'processed-' + object_key,
-                'Artist': artist,
-                'Copyright': copyright,
-                'Description': description
+                'image_name': object_key,
+                'artist_name': artist,
+                'copyright': copyright,
+                'description': description
             }
         )
-        
+    
         print("Done")
         return {
             'statusCode': 200,
             'body': 'Image processed, metadata extracted, and saved to S3. Metadata stored in DynamoDB.'
         }
-        
+            
     except Exception as ex:
         return {
             'statusCode': 500,
             'body': f'Exception: {ex}'
         }
-    
