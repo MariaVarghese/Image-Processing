@@ -43,17 +43,19 @@ def lambda_handler(event, context):
         # Save the processed image with existing metadata
         exif_bytes = piexif.dump(exif_dict)
         output_buffer = BytesIO()
-        imageio.imwrite(output_buffer, gray_image, format='jpeg')
-        image_with_metadata = piexif.insert(exif_bytes, output_buffer.getvalue())
+        imageio.imwrite(output_buffer, gray_image, format='jpg')
+        output_buffer.seek(0)  # Reset buffer position to the beginning
+        piexif.insert(exif_bytes, output_buffer.getvalue(), output_buffer)
+        output_buffer.seek(0)  # Reset buffer position to the beginning again after insertion
+        print(output_buffer.getvalue())
 
         print("Save image in s3")
-        s3_response = s3_client.put_object(Bucket='processed-images-metadata', Key='processed-' + object_key, Body=image_with_metadata)
-        print("S3 Response :: "+s3_response)
+        s3_client.put_object(Bucket='processed-images-metadata', Key='processed-' + object_key, Body=output_buffer.getvalue())
 
         print("Save image details in dynamodb")
         # Store metadata in DynamoDB
         table = dynamodb.Table('image-metadata')
-        response = table.put_item(
+        table.put_item(
             Item={
                 'ImageKey': 'processed-' + object_key,
                 'Artist': artist,
@@ -61,14 +63,16 @@ def lambda_handler(event, context):
                 'Description': description
             }
         )
-        print("DynamoDB response :: "+response)
         
+        print("Done")
         return {
             'statusCode': 200,
             'body': 'Image processed, metadata extracted, and saved to S3. Metadata stored in DynamoDB.'
         }
+        
     except Exception as ex:
         return {
             'statusCode': 500,
             'body': f'Exception: {ex}'
         }
+    
