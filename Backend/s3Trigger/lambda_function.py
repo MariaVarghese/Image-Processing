@@ -1,5 +1,4 @@
 import boto3
-import cv2
 import numpy as np
 from io import BytesIO
 import piexif
@@ -21,14 +20,11 @@ def lambda_handler(event, context):
         response = s3_client.get_object(Bucket=bucket_name, Key=object_key)
         image_bytes = response['Body'].read()
         
-        # Convert bytes to a NumPy array
-        image_array = np.frombuffer(image_bytes, np.uint8)
-        
         # Decode the image array to get the image
-        image = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
-        
+        image = imageio.imread(BytesIO(image_bytes))
+
         # Process the image (example: convert to grayscale)
-        gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        gray_image = np.dot(image[...,:3], [0.2989, 0.5870, 0.1140])  # Convert to grayscale
         
         # Extract existing metadata using piexif
         exif_dict = piexif.load(BytesIO(image_bytes).getvalue())
@@ -43,11 +39,12 @@ def lambda_handler(event, context):
         
         # Save the processed image with existing metadata
         exif_bytes = piexif.dump(exif_dict)
-        _, buffer = cv2.imencode('.jpg', gray_image)
-        image_with_metadata = piexif.insert(exif_bytes, buffer.tobytes())
+        output_buffer = BytesIO()
+        imageio.imwrite(output_buffer, gray_image, format='jpeg')
+        image_with_metadata = piexif.insert(exif_bytes, output_buffer.getvalue())
         s3_client.put_object(Bucket='processed-images-metadata', Key='processed-' + object_key, Body=image_with_metadata)
         
-        
+        # Store metadata in DynamoDB
         table = dynamodb.Table('image-metadata')
         table.put_item(
             Item={
@@ -65,5 +62,5 @@ def lambda_handler(event, context):
     except Exception as ex:
         return {
             'statusCode': 500,
-            'body': f'Exception at {ex}'
+            'body': f'Exception: {ex}'
         }
