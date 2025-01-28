@@ -15,6 +15,7 @@ def lambda_handler(event, context):
         # Get the bucket name and object key from the event
         bucket_name = event['Records'][0]['s3']['bucket']['name']
         object_key = event['Records'][0]['s3']['object']['key']
+        print(bucket_name)
         
         # Get the image object from S3
         response = s3_client.get_object(Bucket=bucket_name, Key=object_key)
@@ -42,11 +43,12 @@ def lambda_handler(event, context):
         output_buffer = BytesIO()
         imageio.imwrite(output_buffer, gray_image, format='jpeg')
         image_with_metadata = piexif.insert(exif_bytes, output_buffer.getvalue())
-        s3_client.put_object(Bucket='processed-images-metadata', Key='processed-' + object_key, Body=image_with_metadata)
-        
+        s3_response = s3_client.put_object(Bucket='processed-images-metadata', Key='processed-' + object_key, Body=image_with_metadata)
+        print("S3 Response :: "+s3_response)
+
         # Store metadata in DynamoDB
         table = dynamodb.Table('image-metadata')
-        table.put_item(
+        response = table.put_item(
             Item={
                 'ImageKey': 'processed-' + object_key,
                 'Artist': artist,
@@ -54,6 +56,7 @@ def lambda_handler(event, context):
                 'Description': description
             }
         )
+        print("DynamoDB response :: "+response)
         
         return {
             'statusCode': 200,
