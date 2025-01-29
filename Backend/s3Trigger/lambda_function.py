@@ -1,7 +1,6 @@
 import boto3
 import piexif
 import imageio
-import numpy as np
 from io import BytesIO
 from scipy.ndimage import zoom, gaussian_filter
 
@@ -30,12 +29,6 @@ def lambda_handler(event, context):
 
     # Apply a Gaussian blur to smooth out pixelation
     image = gaussian_filter(image, sigma=1)
-
-    # # Process the image (example: convert to grayscale)
-    # gray_image = np.dot(image[...,:3], [0.2989, 0.5870, 0.1140])  # Convert to grayscale
-    # gray_image = (gray_image * 255).astype(np.uint8)  # Convert to uint8 format
-
-    # rgb_image = np.stack((gray_image,)*3, axis=-1)
 
     # Extract existing metadata using piexif
     exif_dict = piexif.load(BytesIO(image_bytes).getvalue())
