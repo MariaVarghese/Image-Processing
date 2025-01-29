@@ -1,9 +1,8 @@
 import boto3
 import piexif
 import imageio
-import numpy as np
 from io import BytesIO
-from scipy.ndimage import zoom, gaussian_filter, laplace, sobel
+from scipy.ndimage import zoom, gaussian_filter
 
 # Initialize the S3 client
 s3_client = boto3.client('s3')
@@ -26,26 +25,26 @@ def lambda_handler(event, context):
     image = imageio.imread(BytesIO(image_bytes))
 
     # Enhance resolution by upscaling the image
-    image = zoom(image, (2, 2, 1))  # Upscale by a factor of 2
+    # image = zoom(image, (2, 2, 1))  # Upscale by a factor of 2
 
     # Apply a Gaussian blur to smooth out pixelation
     image = gaussian_filter(image, sigma=1)
 
     # Convert to grayscale
-    gray_image = image[..., :3].dot([0.2989, 0.5870, 0.1140])  # Convert to grayscale
-    gray_image = (gray_image * 255).astype('uint8')  # Convert to uint8 format
+#     gray_image = image[..., :3].dot([0.2989, 0.5870, 0.1140])  # Convert to grayscale
+#     gray_image = (gray_image * 255).astype('uint8')  # Convert to uint8 format
 
-    # Sharpen the image using Laplace filter
-    sharpened_image = gray_image - laplace(gray_image)
+#     # Sharpen the image using Laplace filter
+#     sharpened_image = gray_image - laplace(gray_image)
 
-    # Detect edges using Sobel filter
-    edges = sobel(gray_image)
+#     # Detect edges using Sobel filter
+#     edges = sobel(gray_image)
 
-   # Combine the sharpened image with edges for better contrast
-    enhanced_image = np.clip(sharpened_image + edges, 0, 255).astype(np.uint8)
+#    # Combine the sharpened image with edges for better contrast
+#     enhanced_image = np.clip(sharpened_image + edges, 0, 255).astype(np.uint8)
 
-    # Convert enhanced image to RGB format
-    rgb_image = np.stack((enhanced_image,)*3, axis=-1)
+#     # Convert enhanced image to RGB format
+#     rgb_image = np.stack((enhanced_image,)*3, axis=-1)
         
     # Extract existing metadata using piexif
     exif_dict = piexif.load(BytesIO(image_bytes).getvalue())
@@ -62,7 +61,7 @@ def lambda_handler(event, context):
     # Save the processed image with existing metadata
     exif_bytes = piexif.dump(exif_dict)
     output_buffer = BytesIO()
-    imageio.imwrite(output_buffer, rgb_image, format='jpg')
+    imageio.imwrite(output_buffer, image, format='jpg')
     output_buffer.seek(0)  # Reset buffer position to the beginning
     piexif.insert(exif_bytes, output_buffer.getvalue(), output_buffer)
     output_buffer.seek(0)  # Reset buffer position to the beginning again after insertion
