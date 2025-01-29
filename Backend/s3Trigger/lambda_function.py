@@ -2,7 +2,7 @@ import boto3
 import piexif
 import imageio
 from io import BytesIO
-from scipy.ndimage import zoom, gaussian_filter
+from scipy.ndimage import zoom, gaussian_filter, laplace, sobel
 
 # Initialize the S3 client
 s3_client = boto3.client('s3')
