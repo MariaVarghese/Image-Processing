@@ -1,6 +1,7 @@
 import boto3
 import piexif
 import imageio
+import numpy as np
 from io import BytesIO
 from scipy.ndimage import zoom, gaussian_filter, laplace, sobel
 
@@ -30,7 +31,7 @@ def lambda_handler(event, context):
     # Apply a Gaussian blur to smooth out pixelation
     image = gaussian_filter(image, sigma=1)
 
-    # Convert to grayscale
+   # Convert to grayscale
     gray_image = imageio.core.util.Array(image[..., :3].dot([0.2989, 0.5870, 0.1140]))  # Convert to grayscale
     gray_image = (gray_image * 255).astype('uint8')  # Convert to uint8 format
 
@@ -41,7 +42,7 @@ def lambda_handler(event, context):
     edges = sobel(gray_image)
 
     # Combine the original grayscale image with edges for better contrast
-    enhanced_image = imageio.core.util.Array(gray_image + edges)
+    enhanced_image = imageio.core.util.Array(sharpened_image + edges)
     enhanced_image = enhanced_image.clip(0, 255).astype('uint8')
 
     # Convert enhanced image to RGB format
