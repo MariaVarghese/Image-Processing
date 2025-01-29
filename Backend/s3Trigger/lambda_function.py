@@ -31,9 +31,10 @@ def lambda_handler(event, context):
     # Apply a Gaussian blur to smooth out pixelation
     image = gaussian_filter(image, sigma=1)
 
-   # Convert to grayscale
-    gray_image = imageio.core.util.Array(image[..., :3].dot([0.2989, 0.5870, 0.1140]))  # Convert to grayscale
-    gray_image = (gray_image * 255).astype('uint8')  # Convert to uint8 format
+    # Convert to grayscale
+    gray_image = np.dot(image[...,:3], [0.2989, 0.5870, 0.1140])  # Convert to grayscale
+    gray_image = (gray_image * 255).astype(np.uint8)  # Convert to uint8 format
+
 
     # Sharpen the image using Laplace filter
     sharpened_image = gray_image - laplace(gray_image)
