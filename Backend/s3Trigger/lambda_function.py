@@ -41,13 +41,12 @@ def lambda_handler(event, context):
     # Detect edges using Sobel filter
     edges = sobel(gray_image)
 
-    # Combine the sharpened image with edges for better contrast
-    enhanced_image = sharpened_image + edges
-    enhanced_image = enhanced_image.clip(0, 255).astype('uint8')
+   # Combine the sharpened image with edges for better contrast
+    enhanced_image = np.clip(sharpened_image + edges, 0, 255).astype(np.uint8)
 
     # Convert enhanced image to RGB format
-    rgb_image = imageio.core.util.Array([enhanced_image, enhanced_image, enhanced_image]).transpose(1, 2, 0)
-    
+    rgb_image = np.stack((enhanced_image,)*3, axis=-1)
+        
     # Extract existing metadata using piexif
     exif_dict = piexif.load(BytesIO(image_bytes).getvalue())
     artist = exif_dict['0th'].get(piexif.ImageIFD.Artist, "Unknown Artist")
