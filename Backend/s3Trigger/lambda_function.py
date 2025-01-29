@@ -1,8 +1,9 @@
 import boto3
-import numpy as np
-from io import BytesIO
 import piexif
 import imageio
+import numpy as np
+from io import BytesIO
+from scipy.ndimage import zoom, gaussian_filter
 
 # Initialize the S3 client
 s3_client = boto3.client('s3')
@@ -23,6 +24,12 @@ def lambda_handler(event, context):
         
         # Decode the image array to get the image
         image = imageio.imread(BytesIO(image_bytes))
+
+        # Enhance resolution by upscaling the image
+        image = zoom(image, (2, 2, 1))  # Upscale by a factor of 2
+
+        # Apply a Gaussian blur to smooth out pixelation
+        image = gaussian_filter(image, sigma=1)
 
         # Process the image (example: convert to grayscale)
         gray_image = np.dot(image[...,:3], [0.2989, 0.5870, 0.1140])  # Convert to grayscale
