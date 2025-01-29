@@ -35,6 +35,8 @@ def lambda_handler(event, context):
         gray_image = np.dot(image[...,:3], [0.2989, 0.5870, 0.1140])  # Convert to grayscale
         gray_image = (gray_image * 255).astype(np.uint8)  # Convert to uint8 format
 
+        rgb_image = np.stack((gray_image,)*3, axis=-1)
+
         # Extract existing metadata using piexif
         exif_dict = piexif.load(BytesIO(image_bytes).getvalue())
         artist = exif_dict['0th'].get(piexif.ImageIFD.Artist, "Unknown Artist")
@@ -50,7 +52,7 @@ def lambda_handler(event, context):
         # Save the processed image with existing metadata
         exif_bytes = piexif.dump(exif_dict)
         output_buffer = BytesIO()
-        imageio.imwrite(output_buffer, gray_image, format='jpg')
+        imageio.imwrite(output_buffer, rgb_image, format='jpg')
         output_buffer.seek(0)  # Reset buffer position to the beginning
         piexif.insert(exif_bytes, output_buffer.getvalue(), output_buffer)
         output_buffer.seek(0)  # Reset buffer position to the beginning again after insertion
@@ -78,6 +80,7 @@ def lambda_handler(event, context):
         }
             
     except Exception as ex:
+        print(ex)
         return {
             'statusCode': 500,
             'body': f'Exception: {ex}'
