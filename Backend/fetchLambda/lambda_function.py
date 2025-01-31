@@ -1,8 +1,10 @@
 import json
 import boto3 # type: ignore
+import os
 from io import BytesIO
 import base64
 
+os.environ['AWS_DEFAULT_REGION'] = 'ap-south-1'
 s3_client = boto3.client('s3')
 bucket_name = 'processed-images-metadata'
 dynamodb = boto3.resource('dynamodb')
