@@ -11,6 +11,7 @@ phases:
     commands:
       - echo "Installing dependencies for backend"
       - cd Backend
+      - pip install pytest moto
       - cd s3Trigger
       - pip install -r requirements.txt -t .
       - cd ..
@@ -39,6 +40,11 @@ phases:
       - echo "Zip Successfully Created"
       - aws lambda update-function-code --function-name fetchLambda --zip-file fileb://lambda_package.zip
       - echo "Lambda Updated"
+      - cd ..
+      - cd tests
+      - echo "Running Pytest"
+      - pytest
+      - echo "Test Successful"
       - cd ..
       - cd ..
       - echo "Building frontend"
