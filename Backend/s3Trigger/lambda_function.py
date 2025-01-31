@@ -1,9 +1,11 @@
 import boto3 # type: ignore
 import piexif # type: ignore
-import imageio # type: ignore
+import imageio.v2 as imageio # type: ignore
+import os
 from io import BytesIO
 from scipy.ndimage import zoom, gaussian_filter # type: ignore
 
+os.environ['AWS_DEFAULT_REGION'] = 'ap-south-1'
 # Initialize the S3 client
 s3_client = boto3.client('s3')
 dynamodb = boto3.resource('dynamodb')
