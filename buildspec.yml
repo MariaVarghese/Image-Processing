@@ -12,6 +12,7 @@ phases:
       - echo "Installing dependencies for backend"
       - cd Backend
       - pip install pytest moto
+      - pip install -r requirements.txt
       - cd s3Trigger
       - pip install -r requirements.txt -t .
       - cd ..
