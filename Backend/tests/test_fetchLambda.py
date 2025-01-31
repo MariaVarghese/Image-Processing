@@ -2,7 +2,7 @@ import pytest
 from unittest.mock import patch, MagicMock
 import boto3
 from botocore.stub import Stubber
-from lambda_function import lambda_handler # type: ignore
+from fetchLambda.lambda_function import lambda_handler # type: ignore
 
 @pytest.fixture
 def s3_event():
