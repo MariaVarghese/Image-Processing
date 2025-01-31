@@ -41,6 +41,7 @@ phases:
       - aws lambda update-function-code --function-name fetchLambda --zip-file fileb://lambda_package.zip
       - echo "Lambda Updated"
       - cd ..
+      - export PYTHONPATH=$PYTHONPATH:$(pwd)
       - cd tests
       - echo "Running Pytest"
       - pytest
