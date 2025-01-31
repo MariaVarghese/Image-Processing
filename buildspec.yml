@@ -33,6 +33,13 @@ phases:
       - aws lambda update-function-code --function-name s3Trigger --s3-bucket lambda-zip-python --s3-key lambda_package.zip
       - echo "Lambda Updated"
       - cd ..
+      - cd fetchLambda
+      - zip -r lambda_package.zip .
+      - ls -l
+      - echo "Zip Successfully Created"
+      - aws lambda update-function-code --function-name fetchLambda --zip-file fileb://lambda_package.zip
+      - echo "Lambda Updated"
+      - cd ..
       - cd ..
       - echo "Building frontend"
       - cd Frontend
